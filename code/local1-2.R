@@ -87,9 +87,8 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
   #####################################################################
   # (2) Our model #####################################################
   # Parameter searching
-  V_set <- c(0.1, 1, 10)  # n = 100
-  #V_set <- c(5, 10, 50, 100)  # n = 200
-  #V_set <- c(1, 5, 10, 50, 100)  # n = 400
+  V_set <- c(0.1, 0.5, 1, 5, 10)  # n = 100
+  #V_set <- c(1, 5, 10, 50, 100)  # n = 200, 400
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
