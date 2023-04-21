@@ -8,46 +8,41 @@ library(foreach)  # for parallelization
 library(doParallel)  # for parallelization
 library(earth)  # for mars fitting
 library(caret)  # for cross-validation
-library(mlbench)  #  the boston housing dataset
-data(BostonHousing2)
+library(AppliedPredictiveModeling)  # the abalone data set
+data(abalone)
 library(dplyr)
 #######################################################################
 
 #######################################################################
 # Core Utilization ####################################################
-num_cores <- 5L
+num_cores <- 10L
 registerDoParallel(num_cores)
 #######################################################################
 
 #######################################################################
-# The Number of Repetition ############################################
-num_rep <- 25L
+# The Number of Repetitions ###########################################
+num_reps <- 25L
 #######################################################################
 
 #######################################################################
 # Data Cleaning #######################################################
-boston_data <- BostonHousing2
-boston_data <- boston_data[c(-1, -2, -5, -10)]
+abalone_data <- abalone
+abalone_data <- abalone_data[, -1]
 
-boston_data <- boston_data %>% 
-  mutate_at(c(-3), function(x) {(x - min(x)) / (max(x) - min(x))}) %>% 
+abalone_data <- abalone_data %>% 
+  mutate_at(-8, function(x) {(x - min(x)) / (max(x) - min(x))}) %>% 
   as.matrix()
 
-y <- boston_data[, 3]
-X <- boston_data[, -3]
+y <- abalone_data[, 8]
+X <- abalone_data[, -8]
 n <- nrow(X)
 d <- ncol(X)
 s <- 2L
 
-num_bins <- rep(100L, d)
-for(col in (1L:ncol(X))) {
-  if (length(unique(X[, col])) < 100L) {
-    num_bins[col] <- NA
-  }
-}
+num_bins <- rep(25L, d)
 #######################################################################
   
-estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandling = "remove") %dopar% {
+estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandling = "remove") %dopar% {
   #######################################################################
   # Data Split ##########################################################
   set.seed(2022L + rep)
@@ -83,11 +78,11 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
   #######################################################################
   # (2) Our model #######################################################
   # Parameter searching
-  V_set <- c(100, 500, 1000)
+  V_set <- c(100, 200, 300, 400, 500)
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
-  k <- 5L
+  k <- 10L
   folds <- createFolds(y_training, k = k, list = TRUE, returnTrain = FALSE)
   
   cv_results <- matrix(, nrow = length(V_set), ncol = 2L)
@@ -105,8 +100,8 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
       
       tryCatch({
         # Build a model
-        regmdc_model <- regmdc(X_cv_training, y_cv_training, s, method = "mars",
-                              V, number_of_bins = num_bins)
+        regmdc_model <- regmdc(X_cv_training, y_cv_training, s, method = "mars", 
+                               V, number_of_bins = num_bins)
         
         # Compute the fitted values at the cv-test data
         our_fit_cv_test <- predict_regmdc(regmdc_model, X_cv_test)

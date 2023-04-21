@@ -12,13 +12,13 @@ library(caret)  # for cross-validation
 
 #######################################################################
 # Core Utilization ####################################################
-num_cores <- 5L
+num_cores <- 10L
 registerDoParallel(num_cores)
 #######################################################################
 
 #######################################################################
-# The Number of Repetition ############################################
-num_rep <- 25L
+# The Number of Repetitions ###########################################
+num_reps <- 25L
 # The Number of Samples ###############################################
 n <- 16L  # for each coordinate
 #n <- 32L  # for each coordinate
@@ -42,7 +42,7 @@ fstar <- function(x) {
 #######################################################################
 
 
-estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandling = "remove") %dopar% {
+estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandling = "remove") %dopar% {
   #####################################################################
   # Design Points #####################################################
   set.seed(2022L + rep)
@@ -75,12 +75,11 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
   #####################################################################
   # (2) Our model #####################################################
   # Parameter searching
-  V_set <- c(10, 50, 100, 500)  # n = 256
-  # V_set <- c(100000, 500000, 1000000, 5000000)  # n = 1024
+  V_set <- c(1e+5, 1e+6, 1e+7)
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
-  k <- 5L
+  k <- 10L
   folds <- createFolds(y, k = k, list = TRUE, returnTrain = FALSE)
   
   cv_results <- matrix(, nrow = length(V_set), ncol = 2L)

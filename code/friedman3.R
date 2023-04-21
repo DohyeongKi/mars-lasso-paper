@@ -12,13 +12,13 @@ library(caret)  # for cross-validation
 
 #######################################################################
 # Core Utilization ####################################################
-num_cores <- 5L
+num_cores <- 10L
 registerDoParallel(num_cores)
 #######################################################################
 
 #######################################################################
-# The Number of Repetition ############################################
-num_rep <- 25L
+# The Number of Repetitions ###########################################
+num_reps <- 25L
 # The Number of Samples ###############################################
 n <- 100L
 #n <- 200L
@@ -26,13 +26,13 @@ n <- 100L
 # Dimension ###########################################################
 d <- 4L
 # Sigma ###############################################################
-sigma <- 0.1
+sigma <- 125.0
 # Interaction Restriction #############################################
 s <- 2L
 # The Number of Samples for Loss Approximation ########################
 num_sample_loss <- 1000L
 # The Number of Bins for Approximation ################################
-num_bins <- 100L
+num_bins <- 25L
 #######################################################################
 
 #######################################################################
@@ -43,12 +43,12 @@ fstar <- function(x) {
   t2 <- 520.0 * pi * x[2] + 40.0 * pi
   t4 <- 10.0 * x[4] + 1.0
   
-  return (atan((t2 * x[3] - 1.0 / (t2 * t4)) / t1))
+  return (sqrt(t1**2 + (t2 * x[3] - 1.0 / (t2 * t4))**2))
 }
 #######################################################################
 
 
-estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandling = "remove") %dopar% {
+estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandling = "remove") %dopar% {
   #####################################################################
   # Design Points #####################################################
   set.seed(2022L + rep)
@@ -88,12 +88,11 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
   #####################################################################
   # (2) Our model #####################################################
   # Parameter searching
-  V_set <- c(1, 5, 10, 50)  # n = 100, 200
-  #V_set <- c(10, 30, 50)  # n = 400
+  V_set <- c(0.1, 1, 10)
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
-  k <- 5L
+  k <- 10L
   folds <- createFolds(y, k = k, list = TRUE, returnTrain = FALSE)
   
   cv_results <- matrix(, nrow = length(V_set), ncol = 2L)

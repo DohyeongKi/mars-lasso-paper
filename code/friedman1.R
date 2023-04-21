@@ -12,13 +12,13 @@ library(caret)  # for cross-validation
 
 #######################################################################
 # Core Utilization ####################################################
-num_cores <- 5L
+num_cores <- 10L
 registerDoParallel(num_cores)
 #######################################################################
 
 #######################################################################
-# The Number of Repetition ############################################
-num_rep <- 25L
+# The Number of Repetitions ###########################################
+num_reps <- 25L
 # The Number of Samples ###############################################
 n <- 50L
 #n <- 100L
@@ -32,7 +32,7 @@ s <- 2L
 # The Number of Samples for Loss Approximation ########################
 num_sample_loss <- 1000L
 # The Number of Bins for Approximation ################################
-num_bins <- 100L
+num_bins <- 25L
 #######################################################################
 
 #######################################################################
@@ -46,7 +46,7 @@ fstar <- function(x) {
 #######################################################################
 
 
-estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandling = "remove") %dopar% {
+estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandling = "remove") %dopar% {
   #####################################################################
   # Design Points #####################################################
   set.seed(2022L + rep)
@@ -86,11 +86,12 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
   #####################################################################
   # (2) Our model #####################################################
   # Parameter searching
-  V_set <- c(50, 100, 150, 200, 250)
+  V_set <- c(1000, 5000, 10000)  # n = 50
+  #V_set <- c(50, 100, 500)  # n = 100, 200
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
-  k <- 5L
+  k <- 10L
   folds <- createFolds(y, k = k, list = TRUE, returnTrain = FALSE)
   
   cv_results <- matrix(, nrow = length(V_set), ncol = 2L)

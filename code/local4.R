@@ -12,16 +12,18 @@ library(caret)  # for cross-validation
 
 #######################################################################
 # Core Utilization ####################################################
-num_cores <- 5L
+num_cores <- 10L
 registerDoParallel(num_cores)
 #######################################################################
 
 #######################################################################
-# The Number of Repetition ############################################
-num_rep <- 25L
+# The Number of Repetitions ###########################################
+num_reps <- 25L
 # The Number of Samples ###############################################
-n <- 500L
-#n <- 1000L
+n <- 100L
+#n <- 200L
+#n <- 400L
+#n <- 800L
 # Dimension ###########################################################
 d <- 5L
 # Sigma ###############################################################
@@ -31,7 +33,7 @@ s <- 2L
 # The Number of Samples for Loss Approximation ########################
 num_sample_loss <- 1000L
 # The Number of Bins for Approximation ################################
-num_bins <- 100L
+num_bins <- 25L
 #######################################################################
 
 #######################################################################
@@ -44,7 +46,7 @@ fstar <- function(x) {
 }
 #######################################################################
 
-estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandling = "remove") %dopar% {
+estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandling = "remove") %dopar% {
   #####################################################################
   # Design Points #####################################################
   set.seed(2022L + rep)
@@ -84,11 +86,14 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
   #####################################################################
   # (2) Our model #####################################################
   # Parameter searching
-  V_set <- c(1000, 3000, 5000)
+  V_set <- c(50, 100, 500)  # n = 100
+  #V_set <- c(100, 500, 1000)  # n = 200
+  #V_set <- c(500, 1000, 5000)  # n = 400
+  #V_set <- c(1000, 3000, 5000)  # n = 800
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
-  k <- 5L
+  k <- 10L
   folds <- createFolds(y, k = k, list = TRUE, returnTrain = FALSE)
   
   cv_results <- matrix(, nrow = length(V_set), ncol = 2L)
@@ -108,6 +113,7 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
         # Build a model
         regmdc_model <- regmdc(X_cv_training, y_cv_training, s, method = "mars", 
                                V, number_of_bins = num_bins)
+        # regmdc_model <- regmdc(X_cv_training, y_cv_training, s, method = "mars", V)
         
         # Compute the fitted values at the cv-test data
         our_fit_cv_test <- predict_regmdc(regmdc_model, X_cv_test)
@@ -128,11 +134,13 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
     # Build a model
     regmdc_model <- regmdc(X_design, y, s, method = "mars", V_best,
                            number_of_bins = num_bins)
+    # regmdc_model <- regmdc(X_design, y, s, method = "mars", V_best)
   }, error = function(err) {
     cv_results_sorted <- cv_results[order(cv_results[, 2L], decreasing = FALSE), ]
     V_best <- cv_results_sorted[2L, 1L]
     regmdc_model <- regmdc(X_design, y, s, method = "mars", 
                            V_best, number_of_bins = num_bins)
+    # regmdc_model <- regmdc(X_design, y, s, method = "mars", V_best)
   })
   
   # Compute loss 

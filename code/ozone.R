@@ -15,13 +15,13 @@ library(dplyr)
 
 #######################################################################
 # Core Utilization ####################################################
-num_cores <- 5L
+num_cores <- 10L
 registerDoParallel(num_cores)
 #######################################################################
 
 #######################################################################
-# The Number of Repetition ############################################
-num_rep <- 25L
+# The Number of Repetitions ###########################################
+num_reps <- 25L
 #######################################################################
 
 #######################################################################
@@ -38,15 +38,10 @@ n <- nrow(X)
 d <- ncol(X)
 s <- 2L
 
-num_bins <- rep(100L, d)
-for(col in (1L:ncol(X))) {
-  if (length(unique(X[, col])) < 100L) {
-    num_bins[col] <- NA
-  }
-}
+num_bins <- rep(25L, d)
 #######################################################################
   
-estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandling = "remove") %dopar% {
+estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandling = "remove") %dopar% {
   #######################################################################
   # Data Split ##########################################################
   set.seed(2022L + rep)
@@ -82,11 +77,11 @@ estimation_results <- foreach(rep = 1L:num_rep, .combine = 'rbind', .errorhandli
   #######################################################################
   # (2) Our model #######################################################
   # Parameter searching
-  V_set <- c(10, 50, 100, 500)
+  V_set <- c(10, 50, 100)
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
-  k <- 5L
+  k <- 10L
   folds <- createFolds(y_training, k = k, list = TRUE, returnTrain = FALSE)
   
   cv_results <- matrix(, nrow = length(V_set), ncol = 2L)

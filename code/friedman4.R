@@ -23,11 +23,10 @@ num_reps <- 25L
 n <- 100L
 #n <- 200L
 #n <- 400L
-#n <- 800L
 # Dimension ###########################################################
-d <- 2L
+d <- 4L
 # Sigma ###############################################################
-sigma <- 1.0
+sigma <- 0.1
 # Interaction Restriction #############################################
 s <- 2L
 # The Number of Samples for Loss Approximation ########################
@@ -40,16 +39,19 @@ num_bins <- 25L
 # Target function #####################################################
 #######################################################################
 fstar <- function(x) {
-  (
-    5.0 * sin(4.0 / (sqrt((x[1])**2 + (x[2])**2) + 0.001)) + 7.5
-  )
+  t1 <- 100.0 * x[1]
+  t2 <- 520.0 * pi * x[2] + 40.0 * pi
+  t4 <- 10.0 * x[4] + 1.0
+  
+  return (atan((t2 * x[3] - 1.0 / (t2 * t4)) / t1))
 }
 #######################################################################
+
 
 estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandling = "remove") %dopar% {
   #####################################################################
   # Design Points #####################################################
-  set.seed(2022L)
+  set.seed(2022L + rep)
   
   X_design <- sapply((1L:d), simplify = TRUE, function(col) {
     runif(n)
@@ -86,8 +88,7 @@ estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandl
   #####################################################################
   # (2) Our model #####################################################
   # Parameter searching
-  V_set <- c(500, 1000, 5000)  # n = 100, 200
-  #V_set <- c(5000, 10000, 50000)  # n = 400, 800
+  V_set <- c(10, 20, 30)
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
