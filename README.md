@@ -4,7 +4,8 @@ This repository contains the code for the numerical experiments in the
 paper [MARS via LASSO](https://arxiv.org/abs/2111.11694). You can find 
 all R scripts in the folder `code`. To run those R scripts, you need to 
 install the R package `regmdc`. Please refer to this 
-[page](https://github.com/DohyeongKi/regmdc) for how to install it. 
+[page](https://github.com/DohyeongKi/regmdc) for how to install it. We 
+used the version 0.5.0 for our experiments.
 
 We put the datasets we used for the experiments into the folder `data`. 
 We obtained the [Airfoil Self-Noise](data/airfoil_self_noise.dat) 
