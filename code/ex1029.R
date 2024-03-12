@@ -28,7 +28,7 @@ num_reps <- 25L
 X <- ex1029 %>% 
   select(Exper, Educ) %>% 
   mutate_all(function(x) {(x - min(x)) / (max(x) - min(x))})
-y <- ex1029[, 6]
+y <- log(ex1029[, 6])
 n <- nrow(X)
 d <- ncol(X)
 s <- 2L
@@ -70,7 +70,7 @@ estimation_results <- foreach(rep = 1L:num_reps, .combine = 'rbind', .errorhandl
   #######################################################################
   # (2) Our model #######################################################
   # Parameter searching
-  V_set <- c(5000, 10000, 50000)
+  V_set <- c(10, 50, 100)
   parameters <- expand.grid(V = V_set) 
   
   # Perform k-fold cross-validation
