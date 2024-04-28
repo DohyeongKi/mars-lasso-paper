@@ -10,8 +10,8 @@ used the version 0.5.0 for our experiments.
 We put the datasets we used for the experiments into the folder `data`. 
 We obtained the [Airfoil Self-Noise](data/airfoil_self_noise.dat) 
 dataset from 
-[here](https://archive.ics.uci.edu/ml/datasets/Airfoil+Self-Noise),
+[here](https://archive.ics.uci.edu/dataset/291/airfoil+self+noise),
 the [Concrete](data/Concrete_Data.xls) dataset from 
-[here](https://archive.ics.uci.edu/ml/datasets/concrete+compressive+strength),
+[here](https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength),
 and the [wine](data/winequality-red.csv) dataset from 
-[here](https://archive.ics.uci.edu/ml/datasets/Wine+Quality).
+[here](https://archive.ics.uci.edu/dataset/186/wine+quality).
